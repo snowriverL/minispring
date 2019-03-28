@@ -39,6 +39,11 @@ public class SnowRiverController {
     @SnowRequestMapping("/remove")
     public void remove(HttpServletRequest req,HttpServletResponse resp,
                        @SnowRequestParam("id") Integer id){
+        try {
+            resp.getWriter().write("======================" + id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
