@@ -1,4 +1,4 @@
-package com.snowriver.spring.v1.model;
+package com.snowriver.spring.model;
 
 public interface ISnowService {
 

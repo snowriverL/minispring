@@ -1,6 +1,6 @@
-package com.snowriver.spring.v1.model;
+package com.snowriver.spring.model;
 
-import com.snowriver.spring.v1.annotation.SnowService;
+import com.snowriver.spring.annotation.SnowService;
 
 @SnowService
 public class SnowServiceImpl implements ISnowService {
