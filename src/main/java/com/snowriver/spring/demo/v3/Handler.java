@@ -1,6 +1,6 @@
-package com.snowriver.spring.v3;
+package com.snowriver.spring.demo.v3;
 
-import com.snowriver.spring.annotation.SnowRequestParam;
+import com.snowriver.spring.framework.annotation.SnowRequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

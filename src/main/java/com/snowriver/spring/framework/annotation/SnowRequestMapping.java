@@ -1,4 +1,4 @@
-package com.snowriver.spring.annotation;
+package com.snowriver.spring.framework.annotation;
 
 import java.lang.annotation.*;
 

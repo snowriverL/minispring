@@ -1,9 +1,9 @@
 package com.snowriver.spring.model;
 
-import com.snowriver.spring.annotation.SnowAutowired;
-import com.snowriver.spring.annotation.SnowController;
-import com.snowriver.spring.annotation.SnowRequestParam;
-import com.snowriver.spring.annotation.SnowRequestMapping;
+import com.snowriver.spring.framework.annotation.SnowAutowired;
+import com.snowriver.spring.framework.annotation.SnowController;
+import com.snowriver.spring.framework.annotation.SnowRequestParam;
+import com.snowriver.spring.framework.annotation.SnowRequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

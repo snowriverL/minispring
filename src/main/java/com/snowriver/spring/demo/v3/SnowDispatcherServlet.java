@@ -1,9 +1,9 @@
-package com.snowriver.spring.v3;
+package com.snowriver.spring.demo.v3;
 
-import com.snowriver.spring.annotation.SnowAutowired;
-import com.snowriver.spring.annotation.SnowController;
-import com.snowriver.spring.annotation.SnowRequestMapping;
-import com.snowriver.spring.annotation.SnowService;
+import com.snowriver.spring.framework.annotation.SnowAutowired;
+import com.snowriver.spring.framework.annotation.SnowController;
+import com.snowriver.spring.framework.annotation.SnowRequestMapping;
+import com.snowriver.spring.framework.annotation.SnowService;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

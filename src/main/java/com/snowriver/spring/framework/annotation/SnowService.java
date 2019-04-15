@@ -1,11 +1,11 @@
-package com.snowriver.spring.annotation;
+package com.snowriver.spring.framework.annotation;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface SnowController {
+public @interface SnowService {
 
 	/**
 	 * The value may indicate a suggestion for a logical component name,
