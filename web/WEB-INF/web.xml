@@ -7,10 +7,10 @@
     <display-name>Snowriver Spring Application</display-name>
     <servlet>
         <servlet-name>snowriver</servlet-name>
-        <servlet-class>com.snowriver.spring.demo.v3.SnowDispatcherServlet</servlet-class>
+        <servlet-class>com.snowriver.spring.framework.webmvc.servlet.SnowDispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>application.properties</param-value>
+            <param-value>classpath:application.properties</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
