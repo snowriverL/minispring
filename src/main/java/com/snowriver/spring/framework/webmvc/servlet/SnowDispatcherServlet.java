@@ -102,7 +102,7 @@ public class SnowDispatcherServlet extends HttpServlet {
                     SnowRequestMapping requestMapping = method.getAnnotation(SnowRequestMapping.class);
                     String regex = ("/" + baseUrl + requestMapping.value().replaceAll("\\*", ".")).replaceAll("/+", "/");
                     Pattern pattern = Pattern.compile(regex);
-                    this.handlerMappings.add(new SnowHandlerMapping(pattern, clazz, method));
+                    this.handlerMappings.add(new SnowHandlerMapping(pattern, controller, method));
                     log.info("Mapping:" + regex + " , " + method);
                 }
             }
@@ -124,7 +124,7 @@ public class SnowDispatcherServlet extends HttpServlet {
     private void initViewResolvers(SnowApplicationContext context) {
         // 解决页面名字和模板文件关联的问题
         String templateRoot = context.getConfig().getProperty("templateRoot");
-        String tempalteRootPath = this.getClass().getResource(templateRoot).getFile();
+        String tempalteRootPath = this.getClass().getClassLoader().getResource(templateRoot).getFile();
 
         File tempalteRootDir = new File(tempalteRootPath);
 

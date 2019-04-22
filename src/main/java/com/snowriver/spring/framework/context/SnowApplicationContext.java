@@ -126,6 +126,32 @@ public class SnowApplicationContext extends SnowDefaultListableBeanFactory imple
     }
 
     /**
+     * 通过BeanDefinition获取一个实例Bean
+     * @param beanDefinition
+     * @return
+     */
+    private Object instantiateBean(SnowBeanDefinition beanDefinition) {
+        Object instance = null;
+        String className = beanDefinition.getBeanClassName();
+
+        try {
+            if (this.singletonBeanCacheMap.containsKey(className)) {
+                instance = singletonBeanCacheMap.get(className);
+            } else {
+                Class<?> clazz = Class.forName(className);
+                instance = clazz.newInstance();
+
+                this.singletonBeanCacheMap.put(beanDefinition.getFactoryBeanName(), instance);
+                this.singletonBeanCacheMap.put(className,instance);
+            }
+            return instance;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return instance;
+    }
+
+    /**
      * 依赖注入
      * @param beanName
      * @param instance
@@ -152,38 +178,13 @@ public class SnowApplicationContext extends SnowDefaultListableBeanFactory imple
             field.setAccessible(true);
 
             try {
+                if(this.beanWrapperMap.get(autowiredBeanName) == null){ continue; }
                 // 完成依赖注入
                 field.set(instance, this.beanWrapperMap.get(autowiredBeanName).getWrappedInstance());
             } catch (IllegalAccessException e) {
                 //e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * 通过BeanDefinition获取一个实例Bean
-     * @param beanDefinition
-     * @return
-     */
-    private Object instantiateBean(SnowBeanDefinition beanDefinition) {
-        Object instance = null;
-        String className = beanDefinition.getBeanClassName();
-
-        try {
-            if (this.singletonBeanCacheMap.containsKey(className)) {
-                instance = singletonBeanCacheMap.get(className);
-            } else {
-                Class<?> clazz = Class.forName(className);
-                instance = clazz.newInstance();
-
-                this.singletonBeanCacheMap.put(beanDefinition.getFactoryBeanName(), instance);
-
-            }
-            return instance;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return instance;
     }
 
     public String[] getBeanDefinitionNames() {

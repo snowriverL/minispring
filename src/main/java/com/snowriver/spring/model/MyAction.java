@@ -23,9 +23,9 @@ import java.util.Map;
 public class MyAction {
 
     @SnowAutowired
-    IQueryService queryService;
+    private IQueryService queryService;
     @SnowAutowired
-    IModifyService modifyService;
+    private IModifyService modifyService;
 
     @SnowRequestMapping("/query.json")
     public SnowModelAndView query(HttpServletRequest request, HttpServletResponse response,
@@ -44,7 +44,7 @@ public class MyAction {
         } catch (Exception e) {
 //			e.printStackTrace();
             Map<String,Object> model = new HashMap<String,Object>();
-            model.put("detail",e.getCause().getMessage());
+            model.put("detail",e.getMessage());
 //			System.out.println(Arrays.toString(e.getStackTrace()).replaceAll("\\[|\\]",""));
             model.put("stackTrace", Arrays.toString(e.getStackTrace()).replaceAll("\\[|\\]",""));
             return new SnowModelAndView("500",model);

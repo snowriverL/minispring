@@ -72,7 +72,7 @@ public class SnowBeanDefinitionReader {
 
                 Class<?>[] interfaces = beanClass.getInterfaces();
                 for (Class<?> clazz : interfaces) {
-                    result.add(doCreateBeanDefinition(toLowerFirstCase(clazz.getSimpleName()), beanClass.getName()));
+                    result.add(doCreateBeanDefinition(clazz.getName(), beanClass.getName()));
                 }
             }
         } catch (Exception e) {
