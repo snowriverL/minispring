@@ -1,12 +1,10 @@
-package com.gupaoedu.vip.spring.demo.action;
+package com.snowriver.spring.model;
 
 import com.snowriver.spring.framework.annotation.SnowAutowired;
 import com.snowriver.spring.framework.annotation.SnowController;
 import com.snowriver.spring.framework.annotation.SnowRequestMapping;
 import com.snowriver.spring.framework.annotation.SnowRequestParam;
 import com.snowriver.spring.framework.webmvc.servlet.SnowModelAndView;
-import com.snowriver.spring.model.IModifyService;
-import com.snowriver.spring.model.IQueryService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
