@@ -1,17 +1,35 @@
 package com.snowriver.spring.framework.context;
 
+import com.snowriver.spring.framework.annotation.SnowAutowired;
+import com.snowriver.spring.framework.annotation.SnowController;
+import com.snowriver.spring.framework.annotation.SnowService;
+import com.snowriver.spring.framework.beans.SnowBeanWrapper;
 import com.snowriver.spring.framework.beans.config.SnowBeanDefinition;
+import com.snowriver.spring.framework.beans.config.SnowBeanPostProcessor;
 import com.snowriver.spring.framework.beans.support.SnowBeanDefinitionReader;
 import com.snowriver.spring.framework.context.support.SnowDefaultListableBeanFactory;
 import com.snowriver.spring.framework.core.SnowBeanFactory;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SnowApplicationContext extends SnowDefaultListableBeanFactory implements SnowBeanFactory {
 
     private String[] configLocations;
     private SnowBeanDefinitionReader reader;
+
+    /**
+     * 用来保存注册时单例的容器
+      */
+    private Map<String, Object> singletonBeanCacheMap = new HashMap<>();
+
+    /**
+     * 用来存储所有的被代理过的对象
+     */
+    private Map<String, SnowBeanWrapper> beanWrapperMap = new ConcurrentHashMap<>();
 
     public SnowApplicationContext(String... configLocations) {
         this.configLocations = configLocations;
@@ -69,12 +87,101 @@ public class SnowApplicationContext extends SnowDefaultListableBeanFactory imple
      *     装饰者模式：
      *     1.保存了原来得OOP关系
      *     2.我需要对它进行扩展，增强（为了以后得Aop打基础）
+     *
+     *     通过缓存机制来处理循环依赖得问题
+     *     如果注入得Bean暂时没有初始化，会打上标记，等Bean初始化完成后，会完成注入操作
+     *     通过2个阶段得处理来解决循环依赖
      * }
      * @param beanName
      * @return
      */
-    @Override
+
     public Object getBean(String beanName) {
-        return null;
+
+        SnowBeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
+
+        try {
+            // 生成事件通知
+            SnowBeanPostProcessor beanPostProcessor = new SnowBeanPostProcessor();
+            Object instance = instantiateBean(beanDefinition);
+
+            if (instance == null) {
+                return null;
+            }
+            // 在实例初始化以前调用一次
+            beanPostProcessor.postProcessBeforeInitialization(instance ,beanName);
+            SnowBeanWrapper beanWrapper = new SnowBeanWrapper(instance);
+            this.beanWrapperMap.put(beanName, beanWrapper);
+            // 在实例初始化以后调用一次
+            beanPostProcessor.postProcessAfterInitialization(instance, beanName);
+
+            populateBean(beanName, instance);
+
+            // 通过这样一调用，相当于给我们留有了可操作得空间
+            return this.beanWrapperMap.get(beanName).getWrappedInstance();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 依赖注入
+     * @param beanName
+     * @param instance
+     */
+    private void populateBean(String beanName, Object instance) {
+        Class<?> clazz = instance.getClass();
+        if (!(clazz.isAnnotationPresent(SnowController.class) || clazz.isAnnotationPresent(SnowService.class))) {
+            return;
+        }
+
+        // 获取所有得属性
+        Field[] fields = clazz.getDeclaredFields();
+
+        for (Field field : fields) {
+            if (!field.isAnnotationPresent(SnowAutowired.class)) {
+                continue;
+            }
+
+            SnowAutowired autowired = field.getAnnotation(SnowAutowired.class);
+            String autowiredBeanName = autowired.value().trim();
+            if ("".equals(autowiredBeanName)) {
+                autowiredBeanName = field.getType().getName();
+            }
+            field.setAccessible(true);
+
+            try {
+                // 完成依赖注入
+                field.set(instance, this.beanWrapperMap.get(autowiredBeanName).getWrappedInstance());
+            } catch (IllegalAccessException e) {
+                //e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 通过BeanDefinition获取一个实例Bean
+     * @param beanDefinition
+     * @return
+     */
+    private Object instantiateBean(SnowBeanDefinition beanDefinition) {
+        Object instance = null;
+        String className = beanDefinition.getBeanClassName();
+
+        try {
+            if (this.singletonBeanCacheMap.containsKey(className)) {
+                instance = singletonBeanCacheMap.get(className);
+            } else {
+                Class<?> clazz = Class.forName(className);
+                instance = clazz.newInstance();
+
+                this.singletonBeanCacheMap.put(beanDefinition.getFactoryBeanName(), instance);
+
+            }
+            return instance;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return instance;
     }
 }
