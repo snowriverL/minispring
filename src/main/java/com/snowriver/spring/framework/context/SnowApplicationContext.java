@@ -3,6 +3,11 @@ package com.snowriver.spring.framework.context;
 import com.snowriver.spring.framework.annotation.SnowAutowired;
 import com.snowriver.spring.framework.annotation.SnowController;
 import com.snowriver.spring.framework.annotation.SnowService;
+import com.snowriver.spring.framework.aop.SnowAopProxy;
+import com.snowriver.spring.framework.aop.SnowCglibAopProxy;
+import com.snowriver.spring.framework.aop.SnowJdkDynamicAopProxy;
+import com.snowriver.spring.framework.aop.config.SnowAopConfig;
+import com.snowriver.spring.framework.aop.support.SnowAdvisedSupport;
 import com.snowriver.spring.framework.beans.SnowBeanWrapper;
 import com.snowriver.spring.framework.beans.config.SnowBeanDefinition;
 import com.snowriver.spring.framework.beans.config.SnowBeanPostProcessor;
@@ -97,6 +102,7 @@ public class SnowApplicationContext extends SnowDefaultListableBeanFactory imple
      * @return
      */
 
+    @Override
     public Object getBean(String beanName) {
 
         SnowBeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
@@ -141,6 +147,15 @@ public class SnowApplicationContext extends SnowDefaultListableBeanFactory imple
                 Class<?> clazz = Class.forName(className);
                 instance = clazz.newInstance();
 
+                // 处理Aop
+                SnowAdvisedSupport config = instantionAopConfig(beanDefinition);
+                config.setTarget(instance);
+                config.setTargetClass(clazz);
+
+                if (config.pointCutMatch()) {
+                    instance = createProxy(config).getProxy();
+                }
+
                 this.singletonBeanCacheMap.put(beanDefinition.getFactoryBeanName(), instance);
                 this.singletonBeanCacheMap.put(className,instance);
             }
@@ -149,6 +164,26 @@ public class SnowApplicationContext extends SnowDefaultListableBeanFactory imple
             e.printStackTrace();
         }
         return instance;
+    }
+
+    private SnowAopProxy createProxy(SnowAdvisedSupport config) {
+        Class targetClass = config.getTargetClass();
+        if (targetClass.getInterfaces().length > 0) {
+            return new SnowJdkDynamicAopProxy(config);
+        }
+        return new SnowCglibAopProxy(config);
+    }
+
+    private SnowAdvisedSupport instantionAopConfig(SnowBeanDefinition beanDefinition) {
+        SnowAopConfig config = new SnowAopConfig();
+        config.setPointCut(reader.getConfig().getProperty("pointCut"));
+        config.setAspectClass(reader.getConfig().getProperty("aspectClass"));
+        config.setAspectBefore(reader.getConfig().getProperty("aspectBefore"));
+        config.setAspectAfter(reader.getConfig().getProperty("aspectAfter"));
+        config.setAspectAfterThrow(reader.getConfig().getProperty("aspectAfterThrow"));
+        config.setAspectAfterThrowingName(reader.getConfig().getProperty("aspectAfterThrowingName"));
+
+        return new SnowAdvisedSupport(config);
     }
 
     /**
